@@ -4,6 +4,7 @@
 
 #import "RNTwilioVoice.h"
 #import <React/RCTLog.h>
+#import "MF_Base32Additions.h"
 
 @import AVFoundation;
 @import PushKit;
@@ -19,6 +20,7 @@
 @property (nonatomic, strong) void(^callKitCompletionCallback)(BOOL);
 @property (nonatomic, strong) CXProvider *callKitProvider;
 @property (nonatomic, strong) CXCallController *callKitCallController;
+@property (nonatomic, strong) void(^incomingPushCompletionCallback)(void);
 @end
 
 @implementation RNTwilioVoice {
@@ -56,10 +58,13 @@ RCT_EXPORT_MODULE()
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-RCT_EXPORT_METHOD(initWithAccessToken:(NSString *)token) {
-  _token = token;
+RCT_EXPORT_METHOD(initWithoutAccessToken) {
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleAppTerminateNotification) name:UIApplicationWillTerminateNotification object:nil];
   [self initPushRegistry];
+}
+
+RCT_EXPORT_METHOD(setAccessToken:(NSString *)token) {
+  _token = token;
 }
 
 RCT_EXPORT_METHOD(initWithAccessTokenUrl:(NSString *)tokenUrl) {
@@ -262,6 +267,18 @@ RCT_REMAP_METHOD(getActiveCall,
   }
 }
 
+- (void)pushRegistry:(PKPushRegistry *)registry didReceiveIncomingPushWithPayload:(PKPushPayload *)payload forType:(PKPushType)type withCompletionHandler:(void (^)(void))completion {
+  NSLog(@"pushRegistry:didReceiveIncomingPushWithPayload:forType:completion");
+
+  // Save for later when the notification is properly handled.
+  self.incomingPushCompletionCallback = completion;
+  
+  if ([type isEqualToString:PKPushTypeVoIP]) {
+    [TwilioVoice handleNotification:payload.dictionaryPayload
+                           delegate:self];
+  }
+}
+
 #pragma mark - TVONotificationDelegate
 - (void)callInviteReceived:(TVOCallInvite *)callInvite {
     if (callInvite.state == TVOCallInviteStatePending) {
@@ -276,10 +293,12 @@ RCT_REMAP_METHOD(getActiveCall,
   if (self.callInvite && self.callInvite == TVOCallInviteStatePending) {
     NSLog(@"Already a pending incoming call invite.");
     NSLog(@"  >> Ignoring call from %@", callInvite.from);
+    [self incomingPushHandled];
     return;
   } else if (self.call) {
     NSLog(@"Already an active call.");
     NSLog(@"  >> Ignoring call from %@", callInvite.from);
+    [self incomingPushHandled];
     return;
   }
 
@@ -312,6 +331,7 @@ RCT_REMAP_METHOD(getActiveCall,
   [self sendEventWithName:@"connectionDidDisconnect" body:params];
 
   self.callInvite = nil;
+  [self incomingPushHandled];
 }
 
 - (void)notificationError:(NSError *)error {
@@ -524,7 +544,9 @@ RCT_REMAP_METHOD(getActiveCall,
 }
 
 - (void)reportIncomingCallFrom:(NSString *)from withUUID:(NSUUID *)uuid {
-  CXHandle *callHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:from];
+  NSString *_from = [from stringByReplacingOccurrencesOfString:@"client:" withString:@""];
+  _from = [NSString stringFromBase32String:_from];
+  CXHandle *callHandle = [[CXHandle alloc] initWithType:CXHandleTypeGeneric value:_from];
 
   CXCallUpdate *callUpdate = [[CXCallUpdate alloc] init];
   callUpdate.remoteHandle = callHandle;
@@ -584,6 +606,7 @@ RCT_REMAP_METHOD(getActiveCall,
     self.call = [self.callInvite acceptWithDelegate:self];
     self.callInvite = nil;
     self.callKitCompletionCallback = completionHandler;
+    [self incomingPushHandled];
 }
 
 - (void)handleAppTerminateNotification {
@@ -593,6 +616,11 @@ RCT_REMAP_METHOD(getActiveCall,
     NSLog(@"handleAppTerminateNotification disconnecting an active call");
     [self.call disconnect];
   }
+}
+
+- (void)incomingPushHandled {
+  [self incomingPushCompletionCallback];
+  self.incomingPushCompletionCallback = nil;
 }
 
 @end

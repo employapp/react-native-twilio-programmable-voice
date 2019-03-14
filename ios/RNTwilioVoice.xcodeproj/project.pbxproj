@@ -10,6 +10,7 @@
 		016DD9B51ECCA23A00315CD4 /* TwilioVoice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 016DD9B41ECCA23A00315CD4 /* TwilioVoice.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		38F71DFA1E9C333F0067E86F /* RNTwilioVoice.m in Sources */ = {isa = PBXBuildFile; fileRef = 38F71DF91E9C333F0067E86F /* RNTwilioVoice.m */; };
 		38F71DFB1E9C333F0067E86F /* RNTwilioVoice.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 38F71DF81E9C333F0067E86F /* RNTwilioVoice.h */; };
+		738B5756223AC6AB00774C4A /* MF_Base32Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 738B5755223AC6AB00774C4A /* MF_Base32Additions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +31,8 @@
 		38F71DF51E9C333F0067E86F /* libRNTwilioVoice.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNTwilioVoice.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		38F71DF81E9C333F0067E86F /* RNTwilioVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RNTwilioVoice.h; sourceTree = "<group>"; };
 		38F71DF91E9C333F0067E86F /* RNTwilioVoice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RNTwilioVoice.m; sourceTree = "<group>"; };
+		738B5754223AC6AB00774C4A /* MF_Base32Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MF_Base32Additions.h; sourceTree = "<group>"; };
+		738B5755223AC6AB00774C4A /* MF_Base32Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MF_Base32Additions.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +77,8 @@
 			children = (
 				38F71DF81E9C333F0067E86F /* RNTwilioVoice.h */,
 				38F71DF91E9C333F0067E86F /* RNTwilioVoice.m */,
+				738B5754223AC6AB00774C4A /* MF_Base32Additions.h */,
+				738B5755223AC6AB00774C4A /* MF_Base32Additions.m */,
 			);
 			path = RNTwilioVoice;
 			sourceTree = "<group>";
@@ -135,6 +140,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				738B5756223AC6AB00774C4A /* MF_Base32Additions.m in Sources */,
 				38F71DFA1E9C333F0067E86F /* RNTwilioVoice.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
