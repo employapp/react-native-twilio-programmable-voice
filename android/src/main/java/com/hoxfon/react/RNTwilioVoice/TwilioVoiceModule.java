@@ -494,11 +494,12 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
         if (accessToken.equals("")) {
             promise.reject(new JSApplicationIllegalArgumentException("Invalid access token"));
             return;
-        }        
-        
+        }
+
         if(!checkPermissionForMicrophone()) {
             promise.reject(new AssertionException("Can't init without microphone permission"));
-        }        
+            return;
+        }
 
         TwilioVoiceModule.this.accessToken = accessToken;
         if (BuildConfig.DEBUG) {
@@ -509,6 +510,24 @@ public class TwilioVoiceModule extends ReactContextBaseJavaModule implements Act
         params.putBoolean("initialized", true);
         promise.resolve(params);
     }
+
+
+    @ReactMethod
+    public void setAccessToken(final String accessToken, Promise promise) {
+        if (accessToken.equals("")) {
+            promise.reject(new JSApplicationIllegalArgumentException("Invalid access token"));
+            return;
+        }
+
+        TwilioVoiceModule.this.accessToken = accessToken;
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "initWithAccessToken ACTION_FCM_TOKEN");
+        }
+        WritableMap params = Arguments.createMap();
+        params.putBoolean("ok", true);
+        promise.resolve(params);
+    }
+
 
     private void clearIncomingNotification(CallInvite callInvite) {
         if (BuildConfig.DEBUG) {
