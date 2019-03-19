@@ -53,6 +53,8 @@ public class CallNotificationManager {
 
     public CallNotificationManager() {}
 
+    private Base32 base32;
+
     public int getApplicationImportance(ReactApplicationContext context) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         if (activityManager == null) {
@@ -144,7 +146,7 @@ public class CallNotificationManager {
                         .setCategory(NotificationCompat.CATEGORY_CALL)
                         .setSmallIcon(R.drawable.ic_call_white_24dp)
                         .setContentTitle("Incoming call")
-                        .setContentText(callInvite.getFrom() + " is calling")
+                        .setContentText(decodeBase32Name(callInvite.getFrom()) + " is calling")
                         .setOngoing(true)
                         .setAutoCancel(true)
                         .setExtras(extras)
@@ -230,7 +232,7 @@ public class CallNotificationManager {
                         .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                         .setSmallIcon(R.drawable.ic_call_missed_white_24dp)
                         .setContentTitle("Missed call")
-                        .setContentText(callInvite.getFrom() + " called")
+                        .setContentText(decodeBase32Name(callInvite.getFrom()) + " called")
                         .setAutoCancel(true)
                         .setShowWhen(true)
                         .setExtras(extras)
@@ -245,7 +247,7 @@ public class CallNotificationManager {
         } else {
             inboxStyle.setBigContentTitle(String.valueOf(missedCalls) + " missed calls");
         }
-        inboxStyle.addLine("from: " +callInvite.getFrom());
+        inboxStyle.addLine("from: " + decodeBase32Name(callInvite.getFrom()));
         sharedPrefEditor.putInt(MISSED_CALLS_GROUP, missedCalls);
         sharedPrefEditor.commit();
 
@@ -346,5 +348,10 @@ public class CallNotificationManager {
     public void removeHangupNotification(ReactApplicationContext context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(HANGUP_NOTIFICATION_ID);
+    }
+
+    private String decodeBase32Name(String name) {
+        name = name.replace("client:", "");
+        return new String(base32.decode(name));
     }
 }
